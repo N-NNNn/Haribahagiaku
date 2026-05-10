@@ -630,7 +630,73 @@ body{padding-bottom:72px}
       <p class="rv" style="font-size:.79rem;color:rgba(255,255,255,.42);margin-bottom:20px">
         Merupakan suatu kehormatan dan kebahagiaan bagi kami sekeluarga, apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
       </p>
-      <a href="https://maps.app.goo.gl/sAVXKD4EkVXuKCNZ8" target="_blank" class="btn-m rv">🗺️ Maps Lokasi Acara</a>
+      <div class="rv" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:4px">
+        <a href="https://maps.app.goo.gl/sAVXKD4EkVXuKCNZ8" target="_blank" class="btn-m">🗺️ Maps Lokasi Acara</a>
+        <button class="btn-m" onclick="saveToCalendar()" style="cursor:pointer">📅 Simpan ke Kalender</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMINDER POPUP -->
+  <div class="popup-overlay" id="calPopup" onclick="if(event.target===this)closeCalPopup()">
+    <div class="popup-panel" style="background:linear-gradient(160deg,var(--dk),#3D0A14,var(--dk2))">
+      <div class="popup-handle" style="background:rgba(200,168,106,.3)"></div>
+      <div class="popup-head" style="border-bottom:1px solid rgba(200,168,106,.15)">
+        <div class="stag" style="color:var(--g3)">Simpan ke Kalender</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--w1);margin-top:4px">📅 Adika &amp; Salma Wedding</div>
+        <div id="calDateLabel" style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:6px">Jumat, 11 September 2026</div>
+        <button class="popup-close" onclick="closeCalPopup()" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)">✕</button>
+      </div>
+      <div class="popup-body" style="padding:20px">
+        <p style="font-size:.78rem;color:rgba(255,255,255,.6);text-align:center;margin-bottom:18px;line-height:1.7">
+          Pilih kalender Anda. HP akan otomatis mengingatkan<br>
+          <strong style="color:var(--g3)">1 hari &amp; 2 hari sebelum acara</strong> 🔔
+        </p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button onclick="addToGoogleCalendar()" style="
+            display:flex;align-items:center;gap:12px;width:100%;
+            background:rgba(255,255,255,.08);border:1px solid rgba(200,168,106,.25);
+            border-radius:10px;padding:14px 16px;cursor:pointer;
+            font-family:'Nunito',sans-serif;color:var(--w1);font-size:.87rem;font-weight:700;
+            transition:background .2s">
+            <span style="font-size:1.4rem">📆</span>
+            <div style="text-align:left">
+              <div>Google Calendar</div>
+              <div style="font-size:.65rem;color:rgba(255,255,255,.45);font-weight:400;margin-top:2px">Android &amp; semua browser</div>
+            </div>
+            <span style="margin-left:auto;font-size:.7rem;color:var(--g3)">→</span>
+          </button>
+          <button onclick="addToAppleCalendar()" style="
+            display:flex;align-items:center;gap:12px;width:100%;
+            background:rgba(255,255,255,.08);border:1px solid rgba(200,168,106,.25);
+            border-radius:10px;padding:14px 16px;cursor:pointer;
+            font-family:'Nunito',sans-serif;color:var(--w1);font-size:.87rem;font-weight:700;
+            transition:background .2s">
+            <span style="font-size:1.4rem">🍎</span>
+            <div style="text-align:left">
+              <div>Apple Calendar</div>
+              <div style="font-size:.65rem;color:rgba(255,255,255,.45);font-weight:400;margin-top:2px">iPhone &amp; Mac</div>
+            </div>
+            <span style="margin-left:auto;font-size:.7rem;color:var(--g3)">→</span>
+          </button>
+          <button onclick="addToOutlook()" style="
+            display:flex;align-items:center;gap:12px;width:100%;
+            background:rgba(255,255,255,.08);border:1px solid rgba(200,168,106,.25);
+            border-radius:10px;padding:14px 16px;cursor:pointer;
+            font-family:'Nunito',sans-serif;color:var(--w1);font-size:.87rem;font-weight:700;
+            transition:background .2s">
+            <span style="font-size:1.4rem">📧</span>
+            <div style="text-align:left">
+              <div>Outlook Calendar</div>
+              <div style="font-size:.65rem;color:rgba(255,255,255,.45);font-weight:400;margin-top:2px">Microsoft / Office 365</div>
+            </div>
+            <span style="margin-left:auto;font-size:.7rem;color:var(--g3)">→</span>
+          </button>
+        </div>
+        <p style="font-size:.65rem;color:rgba(255,255,255,.3);text-align:center;margin-top:16px;line-height:1.6">
+          Setelah kalender terbuka, pastikan klik <strong style="color:rgba(255,255,255,.5)">Simpan / Save</strong><br>agar pengingat aktif di HP Anda ✓
+        </p>
+      </div>
     </div>
   </div>
 
@@ -867,14 +933,45 @@ const qs=new URLSearchParams(location.search);
 const gn=qs.get('to')||qs.get('nama')||qs.get('kpd');
 document.getElementById('guestName').textContent=gn?decodeURIComponent(gn):'Tamu Undangan';
 
-/* ══ WEDDING DATE: 11 SEPTEMBER 2026 ══ */
-const WD=new Date('2026-09-11T08:00:00');
+/* ╔══════════════════════════════════════════════╗
+   ║   ✏️  KONFIGURASI TANGGAL ACARA              ║
+   ║   Ubah di sini saja — semua otomatis ikut!  ║
+   ╚══════════════════════════════════════════════╝ */
+const CFG = {
+  tanggal : '2026-09-11',   // ← GANTI format YYYY-MM-DD
+  jamMulai: '08:00',        // ← jam akad / mulai acara (WIB)
+  jamSelesai: '14:00',      // ← jam selesai resepsi (WIB)
+};
+/* ════════════════════════════════════════════════ */
+
+// Parsing otomatis dari CFG
+const [tY,tM,tD] = CFG.tanggal.split('-').map(Number);
+const [jamH,jamMn] = CFG.jamMulai.split(':').map(Number);
+const [jamSH,jamSMn] = CFG.jamSelesai.split(':').map(Number);
+
+// WIB = UTC+7, jadi kurangi 7 jam untuk UTC
+const WD = new Date(Date.UTC(tY, tM-1, tD, jamH-7, jamMn));
+const WD_END = new Date(Date.UTC(tY, tM-1, tD, jamSH-7, jamSMn));
+
+// Format untuk Google Calendar & ICS (UTC string)
+function toCalStr(d){ return d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z'; }
+const CAL_START = toCalStr(WD);
+const CAL_END   = toCalStr(WD_END);
+const CAL_DATE_LABEL = WD.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Jakarta'});
+
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-document.getElementById('tgH').textContent=HARI[WD.getDay()];
-document.getElementById('tgT').textContent=String(WD.getDate()).padStart(2,'0');
-document.getElementById('tgB').textContent=BULAN[WD.getMonth()].toUpperCase();
-document.getElementById('tgY').textContent=WD.getFullYear();
+
+// Isi tampilan tanggal
+const wdLocal = new Date(CFG.tanggal + 'T' + CFG.jamMulai + ':00');
+document.getElementById('tgH').textContent = HARI[wdLocal.getDay()];
+document.getElementById('tgT').textContent = String(wdLocal.getDate()).padStart(2,'0');
+document.getElementById('tgB').textContent = BULAN[wdLocal.getMonth()].toUpperCase();
+document.getElementById('tgY').textContent = wdLocal.getFullYear();
+
+// Update label tanggal di popup kalender
+const calDateLabel = document.getElementById('calDateLabel');
+if(calDateLabel) calDateLabel.textContent = CAL_DATE_LABEL;
 
 /* ══ COUNTDOWN ══ */
 function cd(){
@@ -978,7 +1075,67 @@ function renderU(){
   el.innerHTML=db.map(x=>'<div class="uci"><div class="uch"><span class="ucn">👤 '+x.n+'</span><span class="ucha">'+x.h+'</span></div><div class="uct">"'+x.u+'"</div><div class="uctm">🕐 '+x.t+'</div></div>').join('');
 }
 
-/* ══ COPY ══ */
+/* ══ SAVE TO CALENDAR ══ */
+function saveToCalendar(){
+  document.getElementById('calPopup').classList.add('show');
+}
+function closeCalPopup(){
+  document.getElementById('calPopup').classList.remove('show');
+}
+
+function addToGoogleCalendar(){
+  const title = encodeURIComponent('💍 Pernikahan Adika & Salma');
+  const loc   = encodeURIComponent('Lokasi Acara Pernikahan, Padang, Sumatera Barat');
+  const desc  = encodeURIComponent('🌸 Akad Nikah: '+CFG.jamMulai+' WIB\n🎊 Resepsi: 11.00 – '+CFG.jamSelesai+' WIB\n\nDoa restu Anda sangat berarti bagi kami 🤲\n\nDetail: ' + window.location.href);
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${CAL_START}/${CAL_END}&details=${desc}&location=${loc}&sf=true&output=xml`;
+  window.open(url, '_blank');
+  closeCalPopup();
+}
+
+function addToAppleCalendar(){
+  const tglLabel = `${tD} ${BULAN[tM-1]} ${tY}`;
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Adika & Salma Wedding//ID',
+    'BEGIN:VEVENT',
+    'UID:adika-salma-wedding-'+CFG.tanggal+'@invitation',
+    'DTSTAMP:'+toCalStr(new Date()),
+    'DTSTART:'+CAL_START,
+    'DTEND:'+CAL_END,
+    'SUMMARY:💍 Pernikahan Adika & Salma',
+    'DESCRIPTION:🌸 Akad Nikah: '+CFG.jamMulai+' WIB\\n🎊 Resepsi: 11.00 – '+CFG.jamSelesai+' WIB\\nDoa restu Anda sangat berarti 🤲',
+    'LOCATION:Lokasi Acara Pernikahan\\, Padang\\, Sumatera Barat',
+    'BEGIN:VALARM',
+    'TRIGGER:-P2D',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:🔔 2 hari lagi! Pernikahan Adika & Salma – '+tglLabel,
+    'END:VALARM',
+    'BEGIN:VALARM',
+    'TRIGGER:-P1D',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:🔔 Besok! Pernikahan Adika & Salma – Akad '+CFG.jamMulai+' WIB',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'undangan-adika-salma.ics';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  closeCalPopup();
+}
+
+function addToOutlook(){
+  // Outlook web uses the same ICS approach
+  addToAppleCalendar();
+}
+
+
 function cp(id,nm){
   const v=document.getElementById(id).textContent;
   navigator.clipboard.writeText(v).then(()=>alert('✅ Nomor rekening '+nm+' disalin:\n'+v),()=>prompt('Salin nomor rekening:',v));
@@ -1060,11 +1217,23 @@ function initSectionObserver(){
         const sec=SEC_MAP.find(s=>s.id===entry.target.id);
         if(!sec) return;
         showToast(sec.icon, sec.lbl);
-        // highlight matching footer button
+        // highlight matching footer button & auto-scroll footer
+        let activeBtn = null;
         fnItems.forEach(btn=>{
           const onclick=btn.getAttribute('onclick')||'';
-          btn.classList.toggle('active', onclick.includes(sec.id));
+          const isActive = onclick.includes(sec.id);
+          btn.classList.toggle('active', isActive);
+          if(isActive) activeBtn = btn;
         });
+        // auto-scroll footer so active button is centered
+        if(activeBtn){
+          const nav = document.getElementById('footerNav');
+          const btnLeft = activeBtn.offsetLeft;
+          const btnWidth = activeBtn.offsetWidth;
+          const navWidth = nav.offsetWidth;
+          const scrollTarget = btnLeft - (navWidth / 2) + (btnWidth / 2);
+          nav.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+        }
       }
     });
   },{threshold:0.3});
